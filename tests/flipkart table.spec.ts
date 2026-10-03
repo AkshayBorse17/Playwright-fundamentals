@@ -5,7 +5,7 @@ test("Flipkart table validation",async({page})=>{
 
 await page.goto("https://www.flipkart.com/")
  await page.getByRole("textbox",{name: "Search for Products, Brands and More"}).fill("DSLR camera")
-     await page.getByRole("textbox",{name: "Search for Products, Brands and More"}).press("Enter")
+ await page.getByRole("textbox",{name: "Search for Products, Brands and More"}).press("Enter")
 
 while(true){
    
