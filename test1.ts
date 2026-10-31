@@ -1,12 +1,11 @@
-async function getUser() {
+let data=[2,4,5,6]
 
-    let response = await fetch(
-        "https://restful-booker.herokuapp.com/booking"
-    );
-
-    let data = await response.json();
-
-    console.log(data);
+let value=function(data:number[]):number{
+    let sum=0
+    for(let item of data){
+        sum=sum+item
+    }
+    return sum
 }
 
-getUser();
+console.log(value(data))

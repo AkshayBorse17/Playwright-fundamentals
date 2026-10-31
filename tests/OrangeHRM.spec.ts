@@ -10,8 +10,24 @@ const username=process.env.ORANGEHRM_USER
 const password=process.env.ORANGEHRM_PASS
 
 let URL="https://opensource-demo.orangehrmlive.com/web/index.php/auth/login"
-test("Orange Login",async({})=>{
 
+test.beforeAll(async()=>{
+  console.log("Before all tests")
+})
+
+test.afterAll(async()=>{
+  console.log("After all tests")
+})
+
+test.beforeEach(async()=>{
+  console.log("Before each test")
+})
+
+test.afterEach(async()=>{
+  console.log("After each test")
+})
+
+test("Orange Login",async({})=>{
   let browser=await chromium.launch()
   let context=await browser.newContext()
   let page=await context.newPage()
@@ -27,7 +43,7 @@ test("Orange Login",async({})=>{
   await browser.close()
 })
 
-test.only("Orange Add Employee",async({})=>{
+test("Orange Add Employee",async({})=>{
    let browser=await chromium.launch()
    let context=await browser.newContext({storageState:"auth.json"})
    let page=await context.newPage()
