@@ -143,7 +143,7 @@ test("window", async ({ page }) => {
         }
     }
     await page.waitForLoadState('networkidle');
-    console.log(`Required window brought to front: ${title}`);
+    console.log(`Required window brought to front: ${await page.title()}`);
     await page.waitForTimeout(5000);
 })
 
