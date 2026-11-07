@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
+// import logger from "playwright-logger";
 
 // let page;
 // let context;
@@ -11,35 +12,35 @@ let URL = "https://testautomationpractice.blogspot.com/";
 //     await page.goto(URL);
 // });
 
-test("dropdown", async ({page}) => {
+test("dropdown", async ({ page }) => {
     await page.goto(URL)
     const countryDropdown = await page.getByRole('combobox', { name: 'Country' });
     await countryDropdown.scrollIntoViewIfNeeded();
-    await countryDropdown.selectOption({index: 3});
+    await countryDropdown.selectOption({ index: 3 });
 
     await page.waitForLoadState("domcontentloaded");
-    await page.screenshot({path:`reports/dropdown_${Date.now()}.png`})
+    await page.screenshot({ path: `reports/dropdown_${Date.now()}.png` })
 });
 
-test("jsalert",async({page})=>{
-        await page.goto(URL)
-        page.on("dialog", async dialog=>{
-            if (dialog.type() === "prompt") {
-                await dialog.accept("Akshay B");
-            } 
-            else if (dialog.type() === "confirm") {
-                await dialog.accept();
-            }
+test("jsalert", async ({ page }) => {
+    await page.goto(URL)
+    page.on("dialog", async dialog => {
+        if (dialog.type() === "prompt") {
+            await dialog.accept("Akshay B");
+        }
+        else if (dialog.type() === "confirm") {
+            await dialog.accept();
+        }
     })
-   
+
     // let alertButton=page.getByRole("button",{name:"Simple Alert"})
     // let alertButton=page.getByRole("button",{name:"Confirmation Alert"})
-    let alertButton=page.getByRole("button",{name:"Prompt Alert"})
+    let alertButton = page.getByRole("button", { name: "Prompt Alert" })
     // await alertButton.scrollIntoViewIfNeeded();
     await alertButton.click();
     // await page.waitForTimeout(3000);
     // expect(page.locator('p[id="demo"]')).toContainText("OK",{timeout:3000})
-   let value=await page.locator('#demo').innerText()
+    let value = await page.locator('#demo').innerText()
     // expect(page.locator('#demo')).toContainText("Akshay",{timeout:3000})
     expect(value).toContain("Akshay")
     console.log(value)
@@ -56,26 +57,26 @@ test("frames", async ({ page }) => {
 });
 
 
-test("upload files",async({page})=>{
+test("upload files", async ({ page }) => {
     await page.goto("https://testautomationpractice.blogspot.com/");
     await page.waitForLoadState('domcontentloaded');
 
     // let filelocator=page.locator("#singleFileInput");
-    let filelocator=page.locator("#multipleFilesInput");
+    let filelocator = page.locator("#multipleFilesInput");
     await filelocator.scrollIntoViewIfNeeded();
-    const filepath1=path.join(__dirname,"../test2.js")
+    const filepath1 = path.join(__dirname, "../test2.js")
     const filepath2 = path.join(__dirname, "../test2.js");
     // console.log(filepath)
     await filelocator.setInputFiles([filepath1, filepath2]);
-      await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 })
 
 
-test("download files",async({page})=>{
+test("download files", async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/download");
     await page.waitForLoadState('domcontentloaded');
 
-     const [download] = await Promise.all([
+    const [download] = await Promise.all([
         page.waitForEvent('download'),
         page.getByText("textfile.txt").click()
     ]);
@@ -83,13 +84,68 @@ test("download files",async({page})=>{
     // let downloadPromise=page.waitForEvent('download');
     // await page.getByText("not_empty.txt").click();
     // let download=await downloadPromise;
-    let downloadPath=await download.path();
-    const filepath1=path.join(__dirname,"../",download.suggestedFilename())
+    let downloadPath = await download.path();
+    const filepath1 = path.join(__dirname, "../", download.suggestedFilename())
     download.saveAs(filepath1);
-    console.log(downloadPath)
+    console.log(`File downloaded at ${filepath1}`);
 })
 
 
+test("popup", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    let popupLocator = page.locator("#PopUp")
+    await popupLocator.scrollIntoViewIfNeeded();
+
+    const [popup] = await Promise.all([
+        page.waitForEvent('popup'),
+        popupLocator.click(),
+    ])
+
+    await popup.bringToFront()
+    await popup.waitForLoadState('networkidle');
+    console.log(`Popup title: ${await popup.title()}`);
+
+    let valueLocator = popup.getByRole("tab", { name: "Python" })
+    await valueLocator.scrollIntoViewIfNeeded();
+    await expect(valueLocator).toContainText("Python")
+    console.log(`Value found: ${await valueLocator.innerText()}`)
+
+})
+
+
+test("window", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    let popupLocator = page.getByRole("button", { name: "New Tab" })
+    await popupLocator.scrollIntoViewIfNeeded();
+
+    const [popup] = await Promise.all([
+        page.waitForEvent('popup'),
+        popupLocator.click(),
+    ])
+
+    await popup.bringToFront()
+    await popup.waitForLoadState('networkidle');
+    console.log(`Popup title: ${await popup.title()}`);
+    await expect(popup).toHaveTitle("SDET-QA Blog")
+
+    const pages = page.context().pages();
+
+    for (const window of pages) {
+        const title = await window.title();
+
+        console.log(`Window title: ${title}`);
+
+        if (title === "Automation Testing Practice") {
+            await window.bringToFront();
+            console.log(`Required window brought to front: ${title}`);
+            break;
+        }
+    }
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(5000);
+})
 
 
 
