@@ -139,11 +139,11 @@ test("window", async ({ page }) => {
 
         if (title === "Automation Testing Practice") {
             await window.bringToFront();
-            console.log(`Required window brought to front: ${title}`);
             break;
         }
     }
     await page.waitForLoadState('networkidle');
+    console.log(`Required window brought to front: ${title}`);
     await page.waitForTimeout(5000);
 })
 
