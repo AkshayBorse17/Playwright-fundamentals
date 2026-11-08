@@ -16,14 +16,75 @@ test("dropdown", async ({ page }) => {
     await page.goto(URL)
     const countryDropdown = await page.getByRole('combobox', { name: 'Country' });
     await countryDropdown.scrollIntoViewIfNeeded();
-    await countryDropdown.selectOption({ index: 3 });
+    await countryDropdown.selectOption({ label: "France"});
+    // await countryDropdown.selectOption({ value: "france"});
+    // await countryDropdown.selectOption({ index: 3 });
 
     await page.waitForLoadState("domcontentloaded");
     await page.screenshot({ path: `reports/dropdown_${Date.now()}.png` })
 });
 
+test("@d1 multiple dropdown",async({page})=>{
+    await page.goto("https://testautomationpractice.blogspot.com/")
+    let dropdown=page.locator("#colors")
+    dropdown.scrollIntoViewIfNeeded();
+    await dropdown.selectOption(["Red","Green","yellow"])
+    await page.waitForLoadState("networkidle");
+})
+
+test("@d2 multiple dropdown",async({page})=>{
+    await page.goto("https://testautomationpractice.blogspot.com/")
+    let dropdown=page.locator("#animals")
+    dropdown.scrollIntoViewIfNeeded();
+    await dropdown.selectOption([{label:"Cat"},{value:"dog"},{index:1}])
+    await page.waitForLoadState("networkidle");
+})
+
+test("@c1 checkbox", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/")
+    let checkbox = page.locator("#saturday")
+    await checkbox.scrollIntoViewIfNeeded();
+    await checkbox.check();
+    await page.waitForLoadState("networkidle");
+    await expect(checkbox).toBeChecked();
+      await checkbox.uncheck();
+      await expect(checkbox).not.toBeChecked();
+})
+
+test("@c2 multiple checkbox", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/")
+    //  await checkbox.scrollIntoViewIfNeeded();
+    const days = ['monday', 'wednesday', 'friday'];
+
+    for (const day of days) {
+        await page.locator(`#${day}`).check();
+        expect(page.locator(`#${day}`)).toBeChecked();
+    }
+    await page.waitForLoadState("networkidle");
+})
+
+test("@c3 multiple checkbox", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    const values = page.locator('input.form-check-input[type="checkbox"]');
+
+    const countValues = await values.count();
+    console.log(`Total checkboxes found: ${countValues}`);
+
+    for (let i = 0; i < countValues; i++) {
+        const checkbox = values.nth(i);
+
+        await checkbox.scrollIntoViewIfNeeded();
+        await checkbox.check();
+        expect(checkbox).toBeChecked();
+        // const value = await checkbox.getAttribute('value');
+        // console.log(value);
+    }
+    page.waitForLoadState("domcontentloaded");
+});
+
 test("jsalert", async ({ page }) => {
-    await page.goto(URL)
+    await page.goto("https://testautomationpractice.blogspot.com/")
     page.on("dialog", async dialog => {
         if (dialog.type() === "prompt") {
             await dialog.accept("Akshay B");
@@ -146,6 +207,7 @@ test("window", async ({ page }) => {
     console.log(`Required window brought to front: ${await page.title()}`);
     await page.waitForTimeout(5000);
 })
+
 
 
 
