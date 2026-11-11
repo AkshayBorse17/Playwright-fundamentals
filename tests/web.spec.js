@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
-// import logger from "playwright-logger";
+import logger from "../logger.js"
 
 // let page;
 // let context;
@@ -16,7 +16,7 @@ test("dropdown", async ({ page }) => {
     await page.goto(URL)
     const countryDropdown = await page.getByRole('combobox', { name: 'Country' });
     await countryDropdown.scrollIntoViewIfNeeded();
-    await countryDropdown.selectOption({ label: "France"});
+    await countryDropdown.selectOption({ label: "France" });
     // await countryDropdown.selectOption({ value: "france"});
     // await countryDropdown.selectOption({ index: 3 });
 
@@ -24,19 +24,19 @@ test("dropdown", async ({ page }) => {
     await page.screenshot({ path: `reports/dropdown_${Date.now()}.png` })
 });
 
-test("@d1 multiple dropdown",async({page})=>{
+test("@d1 multiple dropdown", async ({ page }) => {
     await page.goto("https://testautomationpractice.blogspot.com/")
-    let dropdown=page.locator("#colors")
+    let dropdown = page.locator("#colors")
     dropdown.scrollIntoViewIfNeeded();
-    await dropdown.selectOption(["Red","Green","yellow"])
+    await dropdown.selectOption(["Red", "Green", "yellow"])
     await page.waitForLoadState("networkidle");
 })
 
-test("@d2 multiple dropdown",async({page})=>{
+test("@d2 multiple dropdown", async ({ page }) => {
     await page.goto("https://testautomationpractice.blogspot.com/")
-    let dropdown=page.locator("#animals")
+    let dropdown = page.locator("#animals")
     dropdown.scrollIntoViewIfNeeded();
-    await dropdown.selectOption([{label:"Cat"},{value:"dog"},{index:1}])
+    await dropdown.selectOption([{ label: "Cat" }, { value: "dog" }, { index: 1 }])
     await page.waitForLoadState("networkidle");
 })
 
@@ -47,8 +47,8 @@ test("@c1 checkbox", async ({ page }) => {
     await checkbox.check();
     await page.waitForLoadState("networkidle");
     await expect(checkbox).toBeChecked();
-      await checkbox.uncheck();
-      await expect(checkbox).not.toBeChecked();
+    await checkbox.uncheck();
+    await expect(checkbox).not.toBeChecked();
 })
 
 test("@c2 multiple checkbox", async ({ page }) => {
@@ -107,6 +107,96 @@ test("jsalert", async ({ page }) => {
     console.log(value)
 })
 
+
+test("radio button", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/")
+    let radioButton = page.locator("#female")
+    await radioButton.scrollIntoViewIfNeeded();
+    await radioButton.check();
+    await page.waitForLoadState("networkidle");
+    await expect(radioButton).toBeChecked();
+    console.log(`Radio button checked: ${await radioButton.isChecked()}`);
+})
+
+
+test("@dd1 Drag and Drop", async ({ page }) => {
+    await page.goto("https://testautomationpractice.blogspot.com/");
+
+    const source = page.locator("#draggable");
+    const target = page.locator("#droppable");
+    await source.scrollIntoViewIfNeeded();
+
+    await source.dragTo(target);
+    await page.waitForLoadState("networkidle");
+    const textTarget = page.locator("#droppable> p:has-text('Dropped!')");
+    console.log(`Text after drop: ${await textTarget.innerText()}`);
+});
+
+test("@dp1 date picker",async({page})=>{
+    await page.goto("https://testautomationpractice.blogspot.com/");
+    let datePicker=page.locator("#datepicker").first();
+    await datePicker.scrollIntoViewIfNeeded();
+    await datePicker.fill("12/05/1996");
+    await page.waitForLoadState("networkidle");
+    await page.keyboard.press("Tab");
+    console.log(`Date entered: ${await datePicker.inputValue()}`);
+    await expect(datePicker).toHaveValue("12/05/1996");
+})
+
+
+test("@t1 table",async({page})=>{
+    await page.goto("https://testautomationpractice.blogspot.com/");
+    await page.waitForLoadState("networkidle");
+    // let coumns =page.locator("table[name='BookTable'] th");
+    // let rows=page.locator("table[name='BookTable'] tbody tr");
+    let table=page.locator("table[name='BookTable']");
+    await table.scrollIntoViewIfNeeded();
+    let bookNames=await table.locator("//tr//td[1]").allInnerTexts();
+    console.log(`Book names: ${bookNames}`);
+ 
+    logger.error('this is error');
+    logger.warn('this is warning');
+    logger.info('this is info');
+    logger.debug('this is debug');
+    logger.silly('this is info');
+})
+
+test("@t2 table",async({page})=>{
+    await page.goto("https://testautomationpractice.blogspot.com/");
+    await page.waitForLoadState("networkidle");
+    //table[@name='BookTable']//td[1]
+    let columns =page.locator("//table[@name='BookTable']//th");
+    //table[@name='BookTable']//tr//td[3]
+    let rows=page.locator("//table[@name='BookTable']//tr[position()>1]");
+        // let rowsCount=await rows.count();
+    let specific_column=page.locator("//table[@name='BookTable']//tr//td[3]")
+    let specific_column_count=await specific_column.count();
+
+    for(let i=0;i<specific_column_count;i++){
+        let values=await page.locator("//table[@name='BookTable']//tr//td[3]").nth(i).innerText();
+        if(values.includes("Javascript")){ 
+            // let author=await page.locator("//table[@name='BookTable']//tr//td[2]").nth(i).innerText();
+            // let price=await page.locator("//table[@name='BookTable']//tr//td[4]").nth (i).innerText(); 
+            let data=await page.locator("//table[@name='BookTable']//tr[position()>1]").nth(i).innerText();
+            // console.log(`Author: ${author}, Price: ${price}`);
+            console.log(data)
+        }
+    }
+})
+
+
+test("@t3 table",async({page})=>{
+    await page.goto("https://testautomationpractice.blogspot.com/");
+    let priceLocator=page.locator("//table[@name='BookTable']//tr//td[4]");
+   
+    for(let i=0;i<await priceLocator.count();i++){
+        let price=await priceLocator.nth(i).innerText();
+        if(price>300){
+            let data=await page.locator("//table[@name='BookTable']//tr[position()>1]").nth(i).innerText();
+            console.log(data);
+        }
+    }
+})
 
 test("frames", async ({ page }) => {
     await page.goto("https://the-internet.herokuapp.com/nested_frames");
